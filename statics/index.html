@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>test</title>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+	<script>
+		const url = "192.168.2.110"
+		const port = "8000"
+
+		function modifyList(str) {
+			var dc = document.getElementById("list")
+			dc.firstChild.nodeValue = str
+		}
+
+		function getNotes() {
+			const path = "/notes"
+			const addr = "http://" + url + ":" + port + path
+			var xhttp = new XMLHttpRequest()
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					modifyList(this.responseText)
+				}
+			};
+			xhttp.open("GET", addr, true)
+			xhttp.send()
+		}
+
+		function createNote() {
+			const createUser = (addr, user) => {
+				axios.post(addr, user)
+					.then(response => {
+						const addedUser = response.data;
+						console.log(`POST: user is added`, addedUser);
+						// append to DOM
+						// appendToDOM([addedUser]);
+					})
+					.catch(error => console.error(error));
+			};
+
+			const form = document.querySelector('form');
+
+			const formEvent = form.addEventListener('submit', event => {
+				event.preventDefault();
+
+				const id = document.querySelector('#id').value;
+				const content = document.querySelector('#content').value;
+
+				const user = { content };
+
+				const path = "/note/" + id
+				const addr = "http://" + url + ":" + port + path
+
+				createUser(addr, user);
+			});
+
+		}
+
+		function postNote() {
+			createNote()
+		}
+
+		window.onload = function () {
+			getNotes(),
+				createNote()
+		}
+
+	</script>
+</head>
+
+<body>
+	<div id="create-note">
+		<h1>Create Note</h1>
+		<form>
+			<input type="text" id="id" placeholder="Enter Note ID">
+			<input type="text" id="content" placeholder="Enter Note Content">
+			<button type="submit">Add Note</button>
+		</form>
+	</div>
+
+	<button type="submit" id=updateBtn onclick="getNotes()">refresh</button>
+	<p id="list">changed value</p>
+</body>
+
+</html>

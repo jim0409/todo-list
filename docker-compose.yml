@@ -1,14 +1,19 @@
 version: '3'
 
 services:
+  nginx:
+    container_name: nginx
+    image: nginx:1.13.7
+    volumes:
+     - ./statics:/usr/share/nginx/html
+    ports:
+     - 80:80
+
   adminer:
     container_name: adminer
     image: adminer
-    restart: always
     ports:
       - 8080:8080
-    networks:
-      - proxy-network
 
   mysql:
     container_name: mysql
@@ -18,10 +23,4 @@ services:
       MYSQL_ROOT_PASSWORD: secret
     ports:
      - 3306:3306
-    restart: always
-    networks:
-      - proxy-network
 
-networks:
-  proxy-network:
-    driver: bridge
