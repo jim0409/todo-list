@@ -65,12 +65,9 @@
 					renderList(this.responseText, true)
 				}
 			};
-			// xhttp.setRequestHeader("Content-Type", "application/json")
 			xhttp.open("POST", addr )
+			xhttp.setRequestHeader("Content-Type", "application/json")
 			xhttp.send(JSON.stringify({ "content": content }))
-
-			// TODO: change page view with out send antoher get request?
-			// listContent.push({"id":id, "content":content})
 		}
 
 		function delNote() {
