@@ -9,10 +9,35 @@
 	<script>
 		const url = "192.168.2.110"
 		const port = "8000"
+		let listContent = []
 
-		function modifyList(str) {
+
+		function renderList(str, refresh) {
+			if (refresh) {
+				listContent = []
+			}
+			let htmlStr = ''
+
+			JSON.parse(str, function (k, v) {
+				if (k != "") {
+					listContent.push({
+						id: k,
+						content: v
+					})
+				}
+			})
+
 			var dc = document.getElementById("list")
-			dc.firstChild.nodeValue = str
+			listContent.forEach(function (item) {
+				htmlStr = htmlStr + `
+				<div>
+					<p>id: ${item.id}</p>
+					<p>content: ${item.content}</p>
+				</div>			
+				`
+			})
+
+			dc.innerHTML = htmlStr
 		}
 
 		function getNotes() {
@@ -21,50 +46,50 @@
 			var xhttp = new XMLHttpRequest()
 			xhttp.onreadystatechange = function () {
 				if (this.readyState == 4 && this.status == 200) {
-					modifyList(this.responseText)
+					renderList(this.responseText, true)
 				}
 			};
 			xhttp.open("GET", addr, true)
 			xhttp.send()
 		}
 
-		function createNote() {
-			const createUser = (addr, user) => {
-				axios.post(addr, user)
-					.then(response => {
-						const addedUser = response.data;
-						console.log(`POST: user is added`, addedUser);
-						// append to DOM
-						// appendToDOM([addedUser]);
-					})
-					.catch(error => console.error(error));
+		function addNote() {
+			const id = document.querySelector('#id').value
+			const content = document.querySelector('#content').value;
+			console.log(content)
+			const path = "/note/" + id
+			const addr = "http://" + url + ":" + port + path
+			var xhttp = new XMLHttpRequest()
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					renderList(this.responseText, true)
+				}
 			};
+			// xhttp.setRequestHeader("Content-Type", "application/json")
+			xhttp.open("POST", addr )
+			xhttp.send(JSON.stringify({ "content": content }))
 
-			const form = document.querySelector('form');
-
-			const formEvent = form.addEventListener('submit', event => {
-				event.preventDefault();
-
-				const id = document.querySelector('#id').value;
-				const content = document.querySelector('#content').value;
-
-				const user = { content };
-
-				const path = "/note/" + id
-				const addr = "http://" + url + ":" + port + path
-
-				createUser(addr, user);
-			});
-
+			// TODO: change page view with out send antoher get request?
+			// listContent.push({"id":id, "content":content})
 		}
 
-		function postNote() {
-			createNote()
+		function delNote() {
+			const id = document.querySelector('#delid').value
+			const path = "/note/" + id
+			const addr = "http://" + url + ":" + port + path
+			var xhttp = new XMLHttpRequest()
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					renderList(this.responseText, true)
+				}
+			};
+			xhttp.open("DELETE", addr, true)
+			xhttp.send()
 		}
+
 
 		window.onload = function () {
-			getNotes(),
-				createNote()
+			getNotes()
 		}
 
 	</script>
@@ -76,12 +101,22 @@
 		<form>
 			<input type="text" id="id" placeholder="Enter Note ID">
 			<input type="text" id="content" placeholder="Enter Note Content">
-			<button type="submit">Add Note</button>
+			<button type="submit" onclick="addNote()">Add Note</button>
+		</form>
+		<h1>Delete Note</h1>
+		<form>
+			<input type="text" id="delid" placeholder="Enter Delete Note ID">
+			<button type="submit" onclick="delNote()">Delete Note</button>
 		</form>
 	</div>
 
 	<button type="submit" id=updateBtn onclick="getNotes()">refresh</button>
-	<p id="list">changed value</p>
+	<div class="list" id="list">
+		<div>
+			<p>id: </p>
+			<p>content: </p>
+		</div>
+	</div>
 </body>
 
 </html>
