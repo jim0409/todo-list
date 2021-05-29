@@ -31,14 +31,42 @@
 			var dc = document.getElementById("list")
 			listContent.forEach(function (item) {
 				htmlStr = htmlStr + `
-				<div>
-					<p>id: ${item.id}</p>
+				<form>
+					<p id=${item.id}>id: ${item.id}</p>
 					<p>content: ${item.content}</p>
-				</div>			
+					<input id="update_${item.id}"">new content</input>
+					<button type="submit" onclick="updateNote(${item.id})">update</button>
+					<button type="submit" onclick="delNoteByID(${item.id})">delete</button>
+				</form>
 				`
 			})
-
 			dc.innerHTML = htmlStr
+		}
+
+		function updateNote(idObj) {
+			const id = idObj.id
+			const updateId = "#update_"+id
+			const content = document.querySelector(updateId).value
+			console.log(id)
+			console.log(content)
+
+			let addr = baseAddr + "/note/" + id
+			var xhttp = new XMLHttpRequest()
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					renderList(this.responseText, true)
+				}
+			};
+			xhttp.open("PUT", addr)
+			xhttp.setRequestHeader("Content-Type", "application/json")
+			xhttp.send(JSON.stringify({ "content": content }))
+		}
+
+		function delNoteByID(idObj) {
+			const id = idObj.id
+			console.log("test deleted...", id)
+			let addr = baseAddr + "/note/" + id
+			deleting(addr)
 		}
 
 		function getNotes() {
@@ -57,7 +85,7 @@
 			const id = document.querySelector('#id').value
 			const content = document.querySelector('#content').value;
 			console.log(content)
-			let addr = baseAddr + "/note" + id
+			let addr = baseAddr + "/note/" + id
 			var xhttp = new XMLHttpRequest()
 			xhttp.onreadystatechange = function () {
 				if (this.readyState == 4 && this.status == 200) {
@@ -69,9 +97,7 @@
 			xhttp.send(JSON.stringify({ "content": content }))
 		}
 
-		function delNote() {
-			const id = document.querySelector('#delid').value
-			let addr = baseAddr + "/note/" + id
+		function deleting(addr) {
 			var xhttp = new XMLHttpRequest()
 			xhttp.onreadystatechange = function () {
 				if (this.readyState == 4 && this.status == 200) {
@@ -80,6 +106,12 @@
 			};
 			xhttp.open("DELETE", addr, true)
 			xhttp.send()
+		}
+
+		function delNote() {
+			const id = document.querySelector('#delid').value
+			let addr = baseAddr + "/note/" + id
+			deleting(addr)
 		}
 
 
