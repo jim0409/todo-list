@@ -2,6 +2,8 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
+	"strconv"
 	"todo-list/models"
 
 	"github.com/gin-gonic/gin"
@@ -31,7 +33,7 @@ func CreateNotes(c *gin.Context) {
 	c.Abort()
 }
 
-func ReadNotes(c *gin.Context) {
+func ReadAllNotes(c *gin.Context) {
 	m, err := models.RetriveMySqlDbAccessModel().ReadAllNotes()
 	ep(err)
 	c.JSON(200, m)
@@ -59,5 +61,39 @@ func DeleteNotes(c *gin.Context) {
 	err := models.RetriveMySqlDbAccessModel().DeleteNotes(id)
 	ep(err)
 	c.JSON(200, "delete post")
+	c.Abort()
+}
+
+func ReadNoteByPage(c *gin.Context) {
+	page, ok := c.GetQuery("page")
+	if !ok {
+		page = "0"
+	}
+	fmt.Println(page)
+
+	limit, ok := c.GetQuery("limit")
+	if !ok {
+		limit = "5"
+	}
+	fmt.Println(limit)
+
+	pageInt, err := strconv.Atoi(page)
+	ep(err)
+
+	limitInt, err := strconv.Atoi(limit)
+	ep(err)
+
+	m, err := models.RetriveMySqlDbAccessModel().ReadNoteByPage(pageInt, limitInt)
+	ep(err)
+
+	for i, j := range m {
+		fmt.Println(i)
+		for ii, jj := range j.(map[string]string) {
+			fmt.Println(ii)
+			fmt.Println(jj)
+		}
+	}
+
+	c.JSON(200, m)
 	c.Abort()
 }

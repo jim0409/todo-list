@@ -23,6 +23,8 @@ type MySqlImplement interface {
 	ReadAllNotes() (map[string]string, error)
 	UpdateNotes(string, string) error
 	DeleteNotes(string) error
+
+	ReadNoteByPage(int, int) (map[uint]interface{}, error)
 }
 
 // InitDb init db

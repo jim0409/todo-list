@@ -32,8 +32,11 @@ func ApiRouter(r *gin.Engine) {
 	r1 := authrized.Group("/")
 	{
 		r1.POST("/note/:id", service.CreateNotes)
-		r1.GET("/notes", service.ReadNotes) // pagenation .. ?
+		r1.GET("/notes", service.ReadAllNotes) // pagenation .. ?
 		r1.PUT("/note/:id", service.UpdateNotes)
 		r1.DELETE("/note/:id", service.DeleteNotes)
+
+		// 顯示第 n 頁
+		r1.GET("/note", service.ReadNoteByPage)
 	}
 }

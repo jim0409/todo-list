@@ -75,10 +75,7 @@ type MySQLDBAccessObject interface {
 	ExecSql(string) error
 	Close() error
 
-	CreateNotes(string, string) error
-	ReadAllNotes() (map[string]string, error)
-	UpdateNotes(string, string) error
-	DeleteNotes(string) error
+	NoteImp
 }
 
 func initMySqlDB(c *MySQLConfig) (MySQLDBAccessObject, error) {
