@@ -4,11 +4,12 @@
 <head>
 	<meta charset="UTF-8">
 	<title>test</title>
-	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
 	<script>
+		const scheme = "http://"
 		const url = "192.168.2.110"
-		const port = "8000"
+		const port = ":8000"
+		const baseAddr = scheme + url + port
 		let listContent = []
 
 
@@ -41,8 +42,7 @@
 		}
 
 		function getNotes() {
-			const path = "/notes"
-			const addr = "http://" + url + ":" + port + path
+			let addr = baseAddr + "/notes"
 			var xhttp = new XMLHttpRequest()
 			xhttp.onreadystatechange = function () {
 				if (this.readyState == 4 && this.status == 200) {
@@ -57,23 +57,21 @@
 			const id = document.querySelector('#id').value
 			const content = document.querySelector('#content').value;
 			console.log(content)
-			const path = "/note/" + id
-			const addr = "http://" + url + ":" + port + path
+			let addr = baseAddr + "/note" + id
 			var xhttp = new XMLHttpRequest()
 			xhttp.onreadystatechange = function () {
 				if (this.readyState == 4 && this.status == 200) {
 					renderList(this.responseText, true)
 				}
 			};
-			xhttp.open("POST", addr )
+			xhttp.open("POST", addr)
 			xhttp.setRequestHeader("Content-Type", "application/json")
 			xhttp.send(JSON.stringify({ "content": content }))
 		}
 
 		function delNote() {
 			const id = document.querySelector('#delid').value
-			const path = "/note/" + id
-			const addr = "http://" + url + ":" + port + path
+			let addr = baseAddr + "/note/" + id
 			var xhttp = new XMLHttpRequest()
 			xhttp.onreadystatechange = function () {
 				if (this.readyState == 4 && this.status == 200) {
