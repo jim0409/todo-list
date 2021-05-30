@@ -10,11 +10,12 @@ import (
 */
 type NoteImp interface {
 	CreateNotes(string, string) error
-	ReadAllNotes() (map[string]string, error)
-	UpdateNotes(string, string) error
-	DeleteNotes(string) error
+	ReadAllNotes() (map[uint]interface{}, error)
+	UpdateNotes(string, string, string) error
+	DeleteNote(string) error
 
 	ReadNoteByPage(int, int) (map[uint]interface{}, error)
+	CountPage(uint) (uint, error)
 }
 
 type NoteTable struct {
@@ -27,7 +28,7 @@ type NoteTable struct {
 }
 
 var (
-	NoteTableName = "note_table"
+	noteTable = "note_table"
 )
 
 func (db *mysqlDBObj) CreateNotes(title string, content string) error {
@@ -39,37 +40,41 @@ func (db *mysqlDBObj) CreateNotes(title string, content string) error {
 	return db.DB.Create(newNots).Error
 }
 
-func (db *mysqlDBObj) ReadAllNotes() (map[string]string, error) {
+func (db *mysqlDBObj) ReadAllNotes() (map[uint]interface{}, error) {
 	var notes = []NoteTable{}
 	if err := db.DB.Find(&notes).Error; err != nil {
 		return nil, err
 	}
 
-	results := map[string]string{}
+	results := make(map[uint]interface{})
 	for _, j := range notes {
-		results[j.Title] = j.Content
+		results[j.ID] = map[string]interface{}{
+			"Title":   j.Title,
+			"Content": j.Content,
+		}
 	}
 
 	return results, nil
 }
 
-func (db *mysqlDBObj) UpdateNotes(title string, content string) error {
+func (db *mysqlDBObj) UpdateNotes(id string, title string, content string) error {
 	var updateNote = &NoteTable{
 		Title:   title,
 		Content: content,
 	}
 
-	return db.DB.First(&NoteTable{Title: title}).Update(updateNote).Error
+	return db.DB.Table(noteTable).Where("id = ?", id).Update(updateNote).Error
 }
 
-func (db *mysqlDBObj) DeleteNotes(title string) error {
-	return db.DB.Where("Title = ?", title).Delete(&NoteTable{}).Error
+func (db *mysqlDBObj) DeleteNote(id string) error {
+	return db.DB.Where("id = ?", id).Delete(&NoteTable{}).Error
 }
 
-func (db *mysqlDBObj) ReadNoteByPage(id int, limit int) (map[uint]interface{}, error) {
+func (db *mysqlDBObj) ReadNoteByPage(page int, limit int) (map[uint]interface{}, error) {
 	var notes = []NoteTable{}
+	offset := page * limit
 
-	if err := db.DB.Table(NoteTableName).Limit(limit).Find(&notes).Error; err != nil {
+	if err := db.DB.Table(noteTable).Order("id").Offset(offset).Limit(limit).Find(&notes).Error; err != nil {
 		return nil, err
 	}
 
@@ -82,4 +87,19 @@ func (db *mysqlDBObj) ReadNoteByPage(id int, limit int) (map[uint]interface{}, e
 	}
 
 	return results, nil
+}
+
+// CountPage would return the total of pages
+func (db *mysqlDBObj) CountPage(pageSize uint) (uint, error) {
+	var value uint
+	if err := db.DB.Table(noteTable).Where("created_at is NOT NULL").Count(&value).Error; err != nil {
+		return 0, err
+	}
+
+	totalPage := value / pageSize
+	if value%pageSize != 0 {
+		totalPage = totalPage + 1
+	}
+
+	return totalPage, nil
 }

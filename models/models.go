@@ -20,11 +20,12 @@ type MySqlImplement interface {
 	Close() error
 
 	CreateNotes(string, string) error
-	ReadAllNotes() (map[string]string, error)
-	UpdateNotes(string, string) error
-	DeleteNotes(string) error
+	ReadAllNotes() (map[uint]interface{}, error)
+	UpdateNotes(string, string, string) error
+	DeleteNote(string) error
 
 	ReadNoteByPage(int, int) (map[uint]interface{}, error)
+	CountPage(uint) (uint, error)
 }
 
 // InitDb init db

@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"todo-list/models"
 
@@ -16,17 +15,17 @@ func ep(err error) {
 }
 
 type body struct {
+	Title   string
 	Content string
 }
 
 func CreateNotes(c *gin.Context) {
-	id := c.Param("id")
 	ct := &body{}
 	b, err := c.GetRawData()
 	ep(err)
 	err = json.Unmarshal(b, ct)
 	ep(err)
-	err = models.RetriveMySqlDbAccessModel().CreateNotes(id, ct.Content)
+	err = models.RetriveMySqlDbAccessModel().CreateNotes(ct.Title, ct.Content)
 	ep(err)
 
 	c.JSON(200, "create post")
@@ -48,7 +47,7 @@ func UpdateNotes(c *gin.Context) {
 	err = json.Unmarshal(b, ct)
 	ep(err)
 	if ct != nil {
-		err = models.RetriveMySqlDbAccessModel().UpdateNotes(id, ct.Content)
+		err = models.RetriveMySqlDbAccessModel().UpdateNotes(id, ct.Title, ct.Content)
 		ep(err)
 	}
 
@@ -58,24 +57,15 @@ func UpdateNotes(c *gin.Context) {
 
 func DeleteNotes(c *gin.Context) {
 	id := c.Param("id")
-	err := models.RetriveMySqlDbAccessModel().DeleteNotes(id)
+	err := models.RetriveMySqlDbAccessModel().DeleteNote(id)
 	ep(err)
 	c.JSON(200, "delete post")
 	c.Abort()
 }
 
 func ReadNoteByPage(c *gin.Context) {
-	page, ok := c.GetQuery("page")
-	if !ok {
-		page = "0"
-	}
-	fmt.Println(page)
-
-	limit, ok := c.GetQuery("limit")
-	if !ok {
-		limit = "5"
-	}
-	fmt.Println(limit)
+	page := c.DefaultQuery("page", "0")   // default page 0
+	limit := c.DefaultQuery("limit", "5") // default limit 5
 
 	pageInt, err := strconv.Atoi(page)
 	ep(err)
@@ -86,14 +76,15 @@ func ReadNoteByPage(c *gin.Context) {
 	m, err := models.RetriveMySqlDbAccessModel().ReadNoteByPage(pageInt, limitInt)
 	ep(err)
 
-	for i, j := range m {
-		fmt.Println(i)
-		for ii, jj := range j.(map[string]string) {
-			fmt.Println(ii)
-			fmt.Println(jj)
-		}
-	}
-
 	c.JSON(200, m)
 	c.Abort()
+}
+
+func CountPage(c *gin.Context) {
+	limit := c.DefaultQuery("limit", "5") // default limit 5
+	pageUint, err := strconv.Atoi(limit)
+	ep(err)
+	page, err := models.RetriveMySqlDbAccessModel().CountPage(uint(pageUint))
+	ep(err)
+	c.JSON(200, page)
 }

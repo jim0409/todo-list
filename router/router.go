@@ -31,12 +31,13 @@ func ApiRouter(r *gin.Engine) {
 	authrized := r.Group("/")
 	r1 := authrized.Group("/")
 	{
-		r1.POST("/note/:id", service.CreateNotes)
-		r1.GET("/notes", service.ReadAllNotes) // pagenation .. ?
+		r1.POST("/note", service.CreateNotes)
+		r1.GET("/notes", service.ReadAllNotes) // get all notes .. 花費太多效能跟傳輸，應該做分頁
 		r1.PUT("/note/:id", service.UpdateNotes)
 		r1.DELETE("/note/:id", service.DeleteNotes)
 
 		// 顯示第 n 頁
 		r1.GET("/note", service.ReadNoteByPage)
+		r1.GET("/allpage", service.CountPage) // 依據每頁分頁的數目，回傳總共頁數
 	}
 }
