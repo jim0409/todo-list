@@ -123,6 +123,9 @@
 		}
 
 		function getNotes(pageNum) {
+			if (pageNum <0){
+				return
+			}
 			if (pageNum === 0) {
 				basePageNum = 0
 			}
@@ -200,6 +203,7 @@
 		</form>
 	</div>
 	<button type="submit" id=updateBtn onclick="getNotes(0)">refresh</button>
+	<button id=nextBtn onclick="getNotes(basePageNum-1)">prev</button>
 	<button id=nextBtn onclick="getNotes(basePageNum+1)">next</button>
 	<div class="list" id="list">
 		<div>
