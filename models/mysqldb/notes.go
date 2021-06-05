@@ -1,7 +1,6 @@
 package mysqldb
 
 import (
-	// "github.com/jinzhu/gorm"
 	"gorm.io/gorm"
 )
 

@@ -7,8 +7,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	// "github.com/jinzhu/gorm"
-	// _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 var (
@@ -106,7 +104,7 @@ func initMySqlDB(c *MySQLConfig) (MySQLDBAccessObject, error) {
 
 	// 在 gorm.io/gorm 後 db.LogMode(c.DBLogEnable) 改為按照 log 等級
 	db.Logger.LogMode(logger.LogLevel(c.DBLogMode)) // Silent=1, Error=2, Warn=3, Info=4
-	// db.SingularTable(true) // 改用 db open mysql.Config{} 取代
+	// db.SingularTable(true) // 改用 db open mysql.Config{} 取代 .. singular 用意，對於table 命名做格式化，tables -> table
 
 	if err = db.AutoMigrate(&NoteTable{}); err != nil {
 		return nil, err
