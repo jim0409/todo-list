@@ -3,7 +3,8 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>test</title>
+	<title>Note Table</title>
+	<link rel="stylesheet" href="style.css">
 	<script src="fn.js"></script>
 	<script>
 		window.onload = function () {
@@ -31,12 +32,15 @@
 	<button type="submit" id=updateBtn onclick="getNotes(0)">refresh</button>
 	<button id=nextBtn onclick="getNotes(basePageNum-1)">prev</button>
 	<button id=nextBtn onclick="getNotes(basePageNum+1)">next</button>
-	<div class="list" id="list">
-		<div>
-			<p>id: </p>
-			<p>content: </p>
+	<input type="text" id="myInput" onkeyup="filter()" placeholder="Search for title .." title="Type the search title">
+	<ul id="myUL">
+		<div class="list" id="list">
+			<div>
+				<p>id: </p>
+				<p>content: </p>
+			</div>
 		</div>
-	</div>
+	</ul>
 </body>
 
 </html>

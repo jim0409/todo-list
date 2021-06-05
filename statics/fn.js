@@ -5,7 +5,26 @@ const pageLimit = "10"
 let basePageNum = 0
 const baseAddr = scheme + url + port
 let listContent = []
-let totalPage = 1
+let totalPage = 0
+
+
+function filter() {
+	var input, filter, ul, li, a, i, txtValue
+	input = document.getElementById("myInput")
+	filter = input.value.toUpperCase()
+	ul = document.getElementById("myUL")
+	li = ul.getElementsByTagName("li")
+	for (i = 0; i < li.length; i++) {
+		a = li[i].getElementsByTagName("a")[0].getElementsByTagName("p")[1]
+		txtValue = a.textContent || a.innerText
+		txtValue = txtValue.split(" ")[1]
+		if (txtValue.toUpperCase().indexOf(filter) > -1) {
+			li[i].style.display = ""
+		} else {
+			li[i].style.display = "none"
+		}
+	}
+}
 
 function renderList(str, refresh) {
 	if (refresh) {
@@ -23,8 +42,7 @@ function renderList(str, refresh) {
 			} else {
 				obj.id = k
 				listContent.push(obj)
-				// refresh obj
-				obj = {}
+				obj = {} // refresh obj
 			}
 		}
 	})
@@ -32,17 +50,21 @@ function renderList(str, refresh) {
 	var dc = document.getElementById("list")
 	listContent.forEach(function (item) {
 		htmlStr = htmlStr + `
-				<form>
-					<p id=${item.id}>id: ${item.id}</p>
+			<li>
+				<a id=${item.id}>
+					<p>id: ${item.id}</p>
 					<p>title: ${item.title}</p>
 					<p>content: ${item.content}</p>
-					<input id="upti_${item.id}"">update title</input>
-					<button type="submit" onclick="updateTitle(${item.id})">update</button>
-					<input id="upct_${item.id}"">update content</input>
-					<button type="submit" onclick="updateContent(${item.id})">update</button>
-					<button type="submit" onclick="delNoteByID(${item.id})">delete</button>
-				</form>
-				`
+					<form>
+						<input id="upti_${item.id}">update title</input>
+						<button type="submit" onclick="updateTitle(${item.id})">update</button>
+						<input id="upct_${item.id}">update content</input>
+						<button type="submit" onclick="updateContent(${item.id})">update</button>
+						<button type="submit" onclick="delNoteByID(${item.id})">delete</button>
+					</form>
+				</a>
+			</li>
+			`
 	})
 	dc.innerHTML = htmlStr
 }
@@ -135,7 +157,7 @@ function getNotes(pageNum) {
 
 function addNote() {
 	const title = document.querySelector('#title').value
-	const content = document.querySelector('#content').value;
+	const content = document.querySelector('#content').value
 	let addr = baseAddr + "/note"
 	var xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function () {
