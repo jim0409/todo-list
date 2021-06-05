@@ -96,7 +96,7 @@ func (db *mysqlDBObj) ReadNoteByPage(page int, limit int) (map[uint]interface{},
 func (db *mysqlDBObj) CountPage(pageSize int64) (int64, error) {
 	var value int64
 	// 去計算所有的資料筆數不需要拿取全部資料，僅僅只要拿取 id 即可
-	if err := db.DB.Table(noteTable).Select("id").Where("created_at is NOT NULL").Count(&value).Error; err != nil {
+	if err := db.DB.Table(noteTable).Select("id").Where("deleted_at is NULL").Count(&value).Error; err != nil {
 		return 0, err
 	}
 
