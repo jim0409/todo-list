@@ -71,12 +71,7 @@ func (db *mysqlDBObj) Close() error {
 	return d.Close()
 }
 
-func (db *mysqlDBObj) ExecSql(sqlStr string) error {
-	return nil
-}
-
 type MySQLDBAccessObject interface {
-	ExecSql(string) error
 	Close() error
 
 	NoteImp

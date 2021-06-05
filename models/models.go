@@ -16,7 +16,6 @@ func RetriveMySqlDbAccessModel() MySqlImplement {
 }
 
 type MySqlImplement interface {
-	ExecSql(string) error
 	Close() error
 
 	CreateNotes(string, string) error

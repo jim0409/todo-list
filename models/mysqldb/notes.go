@@ -30,6 +30,10 @@ var (
 	noteTable = "note_table"
 )
 
+func (db *NoteTable) TableName() string {
+	return noteTable
+}
+
 func (db *mysqlDBObj) CreateNotes(title string, content string) error {
 	var newNots = &NoteTable{
 		Title:   title,
