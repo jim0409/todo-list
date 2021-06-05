@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	// "github.com/jinzhu/gorm"
+	// _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 var (
@@ -20,20 +23,20 @@ type MySQLConfig struct {
 	DBPort           string
 	DBUsr            string
 	DBPassword       string
-	DBLogEnable      bool
+	DBLogMode        int
 	DBMaxConnection  int
 	DBIdleConnection int
 	DBUri            string
 }
 
-func LoadMySQLDBConfig(dbName, dbHost, dbPort, dbUsr, dbPassword string, dbLogEnable bool, dbMaxConnection, dbIdleConnection int) {
+func LoadMySQLDBConfig(dbName, dbHost, dbPort, dbUsr, dbPassword string, dbLogMode int, dbMaxConnection, dbIdleConnection int) {
 	mysqlDbConfig = &MySQLConfig{
 		DBName:           dbName,
 		DBHost:           dbHost,
 		DBPort:           dbPort,
 		DBUsr:            dbUsr,
 		DBPassword:       dbPassword,
-		DBLogEnable:      dbLogEnable,
+		DBLogMode:        dbLogMode,
 		DBMaxConnection:  dbMaxConnection,
 		DBIdleConnection: dbIdleConnection,
 		// DBUri: fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -63,7 +66,11 @@ type mysqlDBObj struct {
 }
 
 func (db *mysqlDBObj) Close() error {
-	return db.DB.Close()
+	d, err := db.DB.DB()
+	if err != nil {
+		return err
+	}
+	return d.Close()
 }
 
 func (db *mysqlDBObj) ExecSql(sqlStr string) error {
@@ -81,20 +88,29 @@ func initMySqlDB(c *MySQLConfig) (MySQLDBAccessObject, error) {
 	var db *gorm.DB
 	var err error
 
-	if db, err = gorm.Open("mysql", c.DBUri); err != nil {
+	if db, err = gorm.Open(mysql.Open(c.DBUri), &gorm.Config{}); err != nil {
 		return nil, fmt.Errorf("Connection to MySQL DB error : %v", err)
 	}
 
-	db.DB().SetMaxOpenConns(c.DBMaxConnection)
-	db.DB().SetMaxIdleConns(c.DBIdleConnection)
+	// config db open & idle connection nums
+	d, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+	d.SetMaxOpenConns(c.DBMaxConnection)
+	d.SetMaxIdleConns(c.DBIdleConnection)
 
-	if err = db.DB().Ping(); err != nil {
+	if err = d.Ping(); err != nil {
 		return nil, fmt.Errorf("Ping MySQL db error : %v", err)
 	}
 
-	db.LogMode(c.DBLogEnable)
-	db.SingularTable(true)
-	db.AutoMigrate(&NoteTable{})
+	// 在 gorm.io/gorm 後 db.LogMode(c.DBLogEnable) 改為按照 log 等級
+	db.Logger.LogMode(logger.LogLevel(c.DBLogMode)) // Silent=1, Error=2, Warn=3, Info=4
+	// db.SingularTable(true) // 改用 db open mysql.Config{} 取代
+
+	if err = db.AutoMigrate(&NoteTable{}); err != nil {
+		return nil, err
+	}
 
 	return &mysqlDBObj{DB: db}, nil
 }

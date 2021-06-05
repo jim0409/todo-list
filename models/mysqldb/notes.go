@@ -1,7 +1,8 @@
 package mysqldb
 
 import (
-	"github.com/jinzhu/gorm"
+	// "github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 /*
@@ -9,22 +10,21 @@ import (
 	實作方法時需要使用的還是 mysqlDBObj
 */
 type NoteImp interface {
+	// basic CRUD
 	CreateNotes(string, string) error
 	ReadAllNotes() (map[uint]interface{}, error)
 	UpdateNotes(string, string, string) error
 	DeleteNote(string) error
 
+	// Big Func
 	ReadNoteByPage(int, int) (map[uint]interface{}, error)
-	CountPage(uint) (uint, error)
+	CountPage(int64) (int64, error)
 }
 
 type NoteTable struct {
 	gorm.Model
-	// ID        string `gorm:"primary_key"`
 	Title   string `gorm:"type:varchar(255)"`
 	Content string `gorm:"type:varchar(255)"`
-	// CreatedAt time.Time
-	// UpdatedAt time.Time
 }
 
 var (
@@ -63,7 +63,7 @@ func (db *mysqlDBObj) UpdateNotes(id string, title string, content string) error
 		Content: content,
 	}
 
-	return db.DB.Table(noteTable).Where("id = ?", id).Update(updateNote).Error
+	return db.DB.Table(noteTable).Where("id = ?", id).Updates(updateNote).Error
 }
 
 func (db *mysqlDBObj) DeleteNote(id string) error {
@@ -90,9 +90,10 @@ func (db *mysqlDBObj) ReadNoteByPage(page int, limit int) (map[uint]interface{},
 }
 
 // CountPage would return the total of pages
-func (db *mysqlDBObj) CountPage(pageSize uint) (uint, error) {
-	var value uint
-	if err := db.DB.Table(noteTable).Where("created_at is NOT NULL").Count(&value).Error; err != nil {
+func (db *mysqlDBObj) CountPage(pageSize int64) (int64, error) {
+	var value int64
+	// 去計算所有的資料筆數不需要拿取全部資料，僅僅只要拿取 id 即可
+	if err := db.DB.Table(noteTable).Select("id").Where("created_at is NOT NULL").Count(&value).Error; err != nil {
 		return 0, err
 	}
 

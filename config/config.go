@@ -21,7 +21,7 @@ type DbConf struct {
 	DbPort        string `ini:"DbPort"`
 	DbUser        string `ini:"DbUser"`
 	DbPassword    string `ini:"DbPassword"`
-	DbLogEnable   bool   `ini:"DbLogEnable"`
+	DbLogMode     int    `ini:"DbLogMode"`
 	DbMaxConnect  int    `ini:"DbMaxConnect"`
 	DbIdleConnect int    `ini:"DbIdleConnect"`
 }

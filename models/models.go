@@ -25,7 +25,7 @@ type MySqlImplement interface {
 	DeleteNote(string) error
 
 	ReadNoteByPage(int, int) (map[uint]interface{}, error)
-	CountPage(uint) (uint, error)
+	CountPage(int64) (int64, error)
 }
 
 // InitDb init db
@@ -45,7 +45,7 @@ func initMySql(c *config.DbConf) error {
 		c.DbPort,
 		c.DbUser,
 		c.DbPassword,
-		c.DbLogEnable,
+		c.DbLogMode,
 		c.DbMaxConnect,
 		c.DbIdleConnect,
 	)

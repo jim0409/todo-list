@@ -84,7 +84,7 @@ func CountPage(c *gin.Context) {
 	limit := c.DefaultQuery("limit", "5") // default limit 5
 	pageUint, err := strconv.Atoi(limit)
 	ep(err)
-	page, err := models.RetriveMySqlDbAccessModel().CountPage(uint(pageUint))
+	page, err := models.RetriveMySqlDbAccessModel().CountPage(int64(pageUint))
 	ep(err)
 	c.JSON(200, page)
 }
