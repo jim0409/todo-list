@@ -13,7 +13,7 @@ HELP_DOC="
         <build>     : build docker image with name 'project_name/folder_name:git_commit_tag'.
         <push>      : push docker images 'project_name/folder_name:git_commit_tag' to registry.
         <remove>    : 刪除此專案的映像檔
-        <echo>      : 顯示此專案映像檔名稱
+        <init>      : 初始化專案所需要的 db 資料
     )
 "
 
