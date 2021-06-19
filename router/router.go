@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	"todo-list/service"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +16,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, DELETE, OPTIONS, GET, PUT")
 
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
+			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
 
@@ -28,16 +29,17 @@ func ApiRouter(r *gin.Engine) {
 	// middleware need to be implement before Group
 	r.Use(CORSMiddleware())
 
-	authrized := r.Group("/")
-	r1 := authrized.Group("/")
-	{
-		r1.POST("/note", service.CreateNotes)
-		r1.GET("/notes", service.ReadAllNotes) // get all notes .. 花費太多效能跟傳輸，應該做分頁
-		r1.PUT("/note/:id", service.UpdateNotes)
-		r1.DELETE("/note/:id", service.DeleteNotes)
+	version := r.Group("/v1")
 
-		// 顯示第 n 頁
-		r1.GET("/note", service.ReadNoteByPage)
-		r1.GET("/allpage", service.CountPage) // 依據每頁分頁的數目，回傳總共頁數
+	no := version.Group("/note")
+	{
+		no.POST("/add", service.CreateNotes)
+
+		no.GET("", service.ReadNoteByPage)       // 顯示第 n 頁 .. 應該用 querystring 顯示
+		no.GET("/lists", service.ReadAllNotes)   // get all notes .. 花費太多效能跟傳輸，應該做分頁
+		no.GET("/totalpages", service.CountPage) // 依據每頁分頁的數目，回傳總共頁數
+
+		no.PUT("/update/:id", service.UpdateNotes)
+		no.DELETE("/delete/:id", service.DeleteNotes)
 	}
 }
