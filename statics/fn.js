@@ -3,7 +3,7 @@ const url = "127.0.0.1"
 const port = ":8000"
 const pageLimit = "10"
 let basePageNum = 0
-const baseAddr = scheme + url + port
+const baseAddr = scheme + url + port +"/v1"+"/note"
 let listContent = []
 let totalPage = 0
 
@@ -83,7 +83,7 @@ function renderPageInfo() {
 }
 
 function getPageCount(pageLimit) {
-	let addr = baseAddr + "/allpage?limit=" + pageLimit
+	let addr = baseAddr + "/totalpages?limit=" + pageLimit
 	var xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4 && this.status == 200) {
@@ -102,7 +102,7 @@ function updateTitle(id) {
 	const updateId = "#upti_" + id
 	const title = document.querySelector(updateId).value
 
-	let addr = baseAddr + "/note/" + id
+	let addr = baseAddr + "/update/" + id
 	var xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4 && this.status == 200) {
@@ -118,7 +118,7 @@ function updateContent(id) {
 	const updateId = "#upct_" + id
 	const content = document.querySelector(updateId).value
 
-	let addr = baseAddr + "/note/" + id
+	let addr = baseAddr + "/update/" + id
 	var xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4 && this.status == 200) {
@@ -131,7 +131,7 @@ function updateContent(id) {
 }
 
 function delNoteByID(id) {
-	let addr = baseAddr + "/note/" + id
+	let addr = baseAddr + "/delete/" + id
 	deleting(addr)
 }
 
@@ -143,7 +143,7 @@ function getNotes(pageNum) {
 		basePageNum = 0
 	}
 	basePageNum = pageNum
-	let addr = baseAddr + "/note?limit=" + pageLimit + '&page=' + pageNum
+	let addr = baseAddr + "?limit=" + pageLimit + '&page=' + pageNum
 	var xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4 && this.status == 200) {
@@ -158,7 +158,7 @@ function getNotes(pageNum) {
 function addNote() {
 	const title = document.querySelector('#title').value
 	const content = document.querySelector('#content').value
-	let addr = baseAddr + "/note"
+	let addr = baseAddr + "/add"
 	var xhttp = new XMLHttpRequest()
 	xhttp.onreadystatechange = function () {
 		if (this.readyState == 4 && this.status == 200) {
@@ -184,8 +184,8 @@ function deleting(addr) {
 	xhttp.send()
 }
 
-function delNote() {
-	const id = document.querySelector('#delid').value
-	let addr = baseAddr + "/note/" + id
-	deleting(addr)
-}
+// function delNote() {
+// 	const id = document.querySelector('#delid').value
+// 	let addr = baseAddr + "/delete/" + id
+// 	deleting(addr)
+// }

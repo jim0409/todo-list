@@ -23,11 +23,12 @@
 			<input type="text" id="content" placeholder="Enter Note Content">
 			<button type="submit" onclick="addNote()">Add Note</button>
 		</form>
-		<h1>Delete Note</h1>
+		<!-- 可能更好的做法是 提供 batch 選擇 在集體刪除，輸入 ID 沒有比較方便 -->
+		<!-- <h1>Delete Note</h1>
 		<form>
 			<input type="text" id="delid" placeholder="Enter Delete Note ID">
 			<button type="submit" onclick="delNote()">Delete Note</button>
-		</form>
+		</form> -->
 	</div>
 	<button type="submit" id=updateBtn onclick="getNotes(0)">refresh</button>
 	<button id=nextBtn onclick="getNotes(basePageNum-1)">prev</button>
@@ -35,10 +36,11 @@
 	<input type="text" id="myInput" onkeyup="filter()" placeholder="Search for title .." title="Type the search title">
 	<ul id="myUL">
 		<div class="list" id="list">
+			<!-- 考慮是否需要初始 template?
 			<div>
 				<p>id: </p>
 				<p>content: </p>
-			</div>
+			</div> -->
 		</div>
 	</ul>
 </body>
