@@ -28,6 +28,12 @@ type MySQLConfig struct {
 }
 
 func LoadMySQLDBConfig(dbName, dbHost, dbPort, dbUsr, dbPassword string, dbLogMode int, dbMaxConnection, dbIdleConnection int) {
+	// linkUrl := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	linkUrl := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True", // 會將UTC-time轉成當地時間...自動加8小時
+		dbUsr, dbPassword, dbHost, dbPort, dbName,
+	)
+
+	// fmt.Println(linkUrl)
 	mysqlDbConfig = &MySQLConfig{
 		DBName:           dbName,
 		DBHost:           dbHost,
@@ -37,10 +43,7 @@ func LoadMySQLDBConfig(dbName, dbHost, dbPort, dbUsr, dbPassword string, dbLogMo
 		DBLogMode:        dbLogMode,
 		DBMaxConnection:  dbMaxConnection,
 		DBIdleConnection: dbIdleConnection,
-		// DBUri: fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		DBUri: fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True", // 會將UTC-time轉成當地時間...自動加8小時
-			dbUsr, dbPassword, dbHost, dbPort, dbName,
-		),
+		DBUri:            linkUrl,
 	}
 }
 
@@ -55,6 +58,12 @@ func StartMySQLDB() error {
 	var err error
 	mysqlDb = RetriveMySQLDBAccessObj()
 	mysqlDb, err = initMySqlDB(mysqlDbConfig)
+	if err != nil {
+		return err
+	}
+
+	// entrypoint as main.go
+	err = initAuth(mysqlDb.retrieveDB(), "./config/rbac_model.conf")
 
 	return err
 }
@@ -71,10 +80,16 @@ func (db *mysqlDBObj) Close() error {
 	return d.Close()
 }
 
+func (db *mysqlDBObj) retrieveDB() *gorm.DB {
+	return db.DB
+}
+
 type MySQLDBAccessObject interface {
 	Close() error
+	retrieveDB() *gorm.DB // private method
 
 	NoteImp
+	AuthImp
 }
 
 func initMySqlDB(c *MySQLConfig) (MySQLDBAccessObject, error) {

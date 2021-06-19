@@ -25,6 +25,9 @@ type MySqlImplement interface {
 
 	ReadNoteByPage(int, int) (map[uint]interface{}, error)
 	CountPage(int64) (int64, error)
+
+	// auth - acount
+	CheckPolicy(string, string, string) (bool, error)
 }
 
 // InitDb init db

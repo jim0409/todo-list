@@ -28,11 +28,20 @@ func ApiRouter(r *gin.Engine) {
 	// https://stackoverflow.com/questions/29418478/go-gin-framework-cors
 	// middleware need to be implement before Group
 	r.Use(CORSMiddleware())
+	// r.Use(service.CheckAuth())
 
 	version := r.Group("/v1")
 
+	ac := version.Group("/usr")
+	{
+		ac.POST("/verify", nil) // 確認帳號可以使用，並且回傳一個驗證碼，驗證碼來自 authenicator
+		ac.POST("/regist", nil) // 透過 admin 註冊一個 user 帳號，回傳 註冊使用者成功與否
+		ac.POST("/login", nil)  // 該使用者透過登入後得到的 Set-Cookie 才能看見 html page
+	}
+
 	no := version.Group("/note")
 	{
+		no.Use(service.CheckAuth())
 		no.POST("/add", service.CreateNotes)
 
 		no.GET("", service.ReadNoteByPage)       // 顯示第 n 頁 .. 應該用 querystring 顯示
