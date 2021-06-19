@@ -14,9 +14,10 @@ todo-list 個人 side project
 4. [x] 學習Casbin，做使用者行為限制
 5. [ ] 建置Account機制，做使用者登入頁面
 6. [ ] 使用 JWT 機制，將回傳 token 帶入使用者角色身份
-7. [ ] 使用 go-redis 對 list 資料做緩存
+7. [ ] 使用 go-redis 對 login session 資料做緩存
 8. [ ] 使用Websocket，做前端頁面推廣通知
 9. [ ] 學習使用Lock(考慮多個使用者同時操作某一比留言訊息)
+10. [ ] 使用 go-redis 對 list 資料做緩存
 
 
 # 實現功能
@@ -29,11 +30,13 @@ todo-list 個人 side project
 # 基於 mysql 資料庫
 - markdb
 1. note_table
+```
 | Id |     created_at   |    updated_at    |    deleted_at    | title | content |
 |----|:----------------:|-----------------:|-----------------:|------:|--------:|
 | 1  | 2021/05/24 10:00 | 2021/05/25 10:00 | 2021/05/24 10:05 | study | ansible |
 | 2  | 2021/05/25 10:00 | 2021/05/26 10:00 |                  | study | golang  |
 | 3  | 2021/05/25 10:00 | 2021/05/27 10:00 |                  | study | python  |
+```
 
 2. auth_casbin_rule
 
