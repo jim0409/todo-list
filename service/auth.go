@@ -7,6 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+/*
+	TODO: refactor CheckPermission .. GetUserRols .. ShowRouter ..
+	router implement CheckPermission is enough
+*/
 func CheckAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sub := "root"

@@ -34,9 +34,21 @@ func ApiRouter(r *gin.Engine) {
 
 	ac := version.Group("/usr")
 	{
+
+		// auth ?
 		ac.POST("/verify", nil) // 確認帳號可以使用，並且回傳一個驗證碼，驗證碼來自 authenicator
-		ac.POST("/regist", nil) // 透過 admin 註冊一個 user 帳號，回傳 註冊使用者成功與否
 		ac.POST("/login", nil)  // 該使用者透過登入後得到的 Set-Cookie 才能看見 html page
+
+		// normal - account
+		ac.POST("/register", service.RegisterUser) // 註冊一個 user 帳號
+		ac.GET("/info", service.GetUserInfo)       // 回傳 user 資訊
+		ac.PUT("/update", service.UpdateUserInfos) // 更新 user 資訊
+
+		// admin - account
+		ac.PUT("/role", service.ChangeUserRole)          // 更新 user
+		ac.PUT("/status", service.ChangeUserStatus)      // 註消該 user 帳號
+		ac.DELETE("/unregister", service.UnregisterUser) // 註消該 user 帳號
+
 	}
 
 	no := version.Group("/note")

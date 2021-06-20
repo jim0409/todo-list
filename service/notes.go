@@ -8,19 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func ep(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-type body struct {
+type note struct {
 	Title   string
 	Content string
 }
 
 func CreateNotes(c *gin.Context) {
-	ct := &body{}
+	ct := &note{}
 	b, err := c.GetRawData()
 	ep(err)
 	err = json.Unmarshal(b, ct)
@@ -41,7 +35,7 @@ func ReadAllNotes(c *gin.Context) {
 
 func UpdateNotes(c *gin.Context) {
 	id := c.Param("id")
-	ct := &body{}
+	ct := &note{}
 	b, err := c.GetRawData()
 	ep(err)
 	err = json.Unmarshal(b, ct)

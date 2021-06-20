@@ -26,8 +26,23 @@ type MySqlImplement interface {
 	ReadNoteByPage(int, int) (map[uint]interface{}, error)
 	CountPage(int64) (int64, error)
 
-	// auth - acount
+	// auth -
+	// Check Policy sub, pub, act
 	CheckPolicy(string, string, string) (bool, error)
+
+	// account -
+	CreateUser(string, string, string, string) error
+	GetUserInfo(string) (map[string]interface{}, error)
+
+	UpdateUserInfos(map[string]interface{}) error
+
+	// need to verify auth again ...
+	UpdateUserPassword(string, string) error
+
+	// admin action
+	ChangeUserStatus(string, uint8) error
+	UpdateUserRole(string, string) error
+	DeleteUser(string) error
 }
 
 // InitDb init db
