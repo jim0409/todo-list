@@ -60,33 +60,45 @@ func injectDefaultData(e *casbin.SyncedEnforcer) {
 	// 	"admin": []string{"/v1/note/add", "POST"},
 	// }
 
-	ok, err = e.AddRoleForUser("admin", "admin")
+	// 宣告 user/normal 的權限
+	ok, err = e.AddRoleForUser("user", "normal")
 	if err != nil && !ok {
 		log.Fatalf("init error %v__%v\n", ok, err)
 	}
-	ok, err = e.AddPolicy("admin", "/v1/note/add", "POST")
+	ok, err = e.AddPolicy("normal", "/v1/note/add", "POST")
 	if err != nil && !ok {
 		log.Fatalf("init error %v__%v\n", ok, err)
 	}
-	ok, err = e.AddPolicy("admin", "/v1/note", "GET")
+	ok, err = e.AddPolicy("normal", "/v1/note", "GET")
 	if err != nil && !ok {
 		log.Fatalf("init error %v__%v\n", ok, err)
 	}
-	ok, err = e.AddPolicy("admin", "/v1/note/lists", "GET")
+	ok, err = e.AddPolicy("normal", "/v1/note/lists", "GET")
 	if err != nil && !ok {
 		log.Fatalf("init error %v__%v\n", ok, err)
 	}
-	ok, err = e.AddPolicy("admin", "/v1/note/totalpages", "GET")
+	ok, err = e.AddPolicy("normal", "/v1/note/totalpages", "GET")
 	if err != nil && !ok {
 		log.Fatalf("init error %v__%v\n", ok, err)
 	}
-	// 0 是正則表達式用的數字
-	ok, err = e.AddPolicy("admin", "/v1/note/update/0", "PUT")
+
+	// 宣告 root/admin 的權限
+	ok, err = e.AddRoleForUser("root", "admin")
 	if err != nil && !ok {
 		log.Fatalf("init error %v__%v\n", ok, err)
 	}
-	// 0 是正則表達式用的數字
-	ok, err = e.AddPolicy("admin", "/v1/note/delete/0", "DELETE")
+	// root 也具備 normal 的權限
+	ok, err = e.AddRoleForUser("admin", "normal")
+	if err != nil && !ok {
+		log.Fatalf("init error %v__%v\n", ok, err)
+	}
+	// 正則表達式
+	ok, err = e.AddPolicy("admin", "/v1/note/update/", "PUT")
+	if err != nil && !ok {
+		log.Fatalf("init error %v__%v\n", ok, err)
+	}
+	// 正則表達式
+	ok, err = e.AddPolicy("admin", "/v1/note/delete/", "DELETE")
 	if err != nil && !ok {
 		log.Fatalf("init error %v__%v\n", ok, err)
 	}

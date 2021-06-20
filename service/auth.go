@@ -9,7 +9,8 @@ import (
 
 func CheckAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		sub := "admin"
+		sub := "root"
+		// sub := "user"
 		obj := c.Request.RequestURI
 		act := c.Request.Method
 
