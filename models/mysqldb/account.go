@@ -2,6 +2,7 @@ package mysqldb
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/mitchellh/mapstructure"
 	"gorm.io/gorm"
@@ -9,6 +10,7 @@ import (
 
 type AccountImp interface {
 	// basic CRUD
+	LoginUser(string, string) error
 	CreateUser(string, string, string, string) error
 	GetUserInfo(string) (map[string]interface{}, error)
 
@@ -53,6 +55,50 @@ var (
 
 func (db *Account) TableName() string {
 	return accountTable
+}
+
+/*
+manual insert default admin user ..
+INSERT INTO `account_table` ( name, status, role, password, phone, mail, avatar, intro)
+VALUES ('admin', 1, 'admin', 'admin', 886975122204, 'berserker.01.tw@hotmail.com', '', '')
+*/
+
+// initAccount only should be called after migrate account_table
+func initAccount(db *gorm.DB, name string, password string) error {
+	ac := &Account{}
+
+	// log.Println(db == nil)
+	if err := db.Table(accountTable).Where("name = ? and deleted_at is NULL", name).Scan(ac).Error; err != nil {
+		log.Println("test")
+		return err
+	}
+
+	// if account user already exists, return
+	if ac.Name != "" {
+		return nil
+	}
+
+	ac = &Account{
+		Name:     name,
+		Password: password,
+		Role:     "admin",
+	}
+	// log.Println("enter here!")
+
+	return db.Create(ac).Error
+}
+
+func (db *mysqlDBObj) LoginUser(name string, password string) error {
+	// TODO: do some pre-handler-for-password
+	ac := &Account{
+		Name:     name,
+		Password: password,
+	}
+	if err := db.DB.Table(accountTable).Where("name = ? and password = ? and deleted_at is NULL", name, password).Scan(ac).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *mysqlDBObj) CreateUser(name string, pw string, phone string, mail string) error {

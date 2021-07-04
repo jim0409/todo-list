@@ -18,6 +18,23 @@ type usr struct {
 	Intro    string
 }
 
+func LoginUser(c *gin.Context) {
+	ut := &usr{}
+	b, err := c.GetRawData()
+	ep(err)
+	err = json.Unmarshal(b, ut)
+	ep(err)
+	err = models.RetriveMySqlDbAccessModel().LoginUser(ut.Name, ut.Password)
+	ep(err)
+
+	// genJwtToken()
+	c.JSON(http.StatusOK, gin.H{
+		"token": "ok",
+	})
+
+	c.Abort()
+}
+
 // TODO: add op code to guarantee that User already been checked via system
 func RegisterUser(c *gin.Context) {
 	ut := &usr{}

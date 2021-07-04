@@ -31,6 +31,7 @@ type MySqlImplement interface {
 	CheckPolicy(string, string, string) (bool, error)
 
 	// account -
+	LoginUser(string, string) error
 	CreateUser(string, string, string, string) error
 	GetUserInfo(string) (map[string]interface{}, error)
 
