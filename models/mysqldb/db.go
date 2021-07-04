@@ -62,9 +62,6 @@ func StartMySQLDB() error {
 		return err
 	}
 
-	// entrypoint as main.go
-	err = initAuth(mysqlDb.retrieveDB(), "./config/rbac_model.conf")
-
 	return err
 }
 
@@ -124,5 +121,16 @@ func initMySqlDB(c *MySQLConfig) (MySQLDBAccessObject, error) {
 		return nil, err
 	}
 
-	return &mysqlDBObj{DB: db}, nil
+	// entrypoint as main.go
+	err = initAuth(db, "./config/rbac_model.conf")
+	if err != nil {
+		return nil, err
+	}
+
+	err = initAccount(db, "admin", "admin")
+	if err != nil {
+		return nil, err
+	}
+
+	return &mysqlDBObj{DB: db}, err
 }
