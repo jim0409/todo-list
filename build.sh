@@ -47,10 +47,10 @@ function docker_remove() {
 }
 
 
-function init_data() {
-    # create an user `jim` with `markdb`
-    docker exec -i mysql mysql -u root -psecret < ./create_mysql_user_tb.sql
-}
+# function init_data() {
+#     # create an user `jim` with `markdb`
+#     docker exec -i mysql mysql -u root -psecret < ./create_mysql_user_tb.sql
+# }
 
 
 function help() {
@@ -69,9 +69,9 @@ elif
 elif
     [ "$1" == "remove" ]; then
     docker_remove
-elif
-    [ "$1" == "init" ]; then
-    init_data
+# elif
+#     [ "$1" == "init" ]; then
+#     init_data
 else
     help
 fi
