@@ -13,9 +13,7 @@ import (
 */
 func CheckAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// sub := "root"
 		sub := c.GetString("role")
-		// sub := "user"
 		obj := c.Request.RequestURI
 		act := c.Request.Method
 

@@ -67,13 +67,11 @@ VALUES ('admin', 1, 'admin', 'admin', 886975122204, 'berserker.01.tw@hotmail.com
 func initAccount(db *gorm.DB, name string, password string) error {
 	ac := &Account{}
 
-	// log.Println(db == nil)
 	if err := db.Table(accountTable).Where("name = ? and deleted_at is NULL", name).Scan(ac).Error; err != nil {
 		log.Println("test")
 		return err
 	}
 
-	// if account user already exists, return
 	if ac.Name != "" {
 		return nil
 	}
@@ -83,7 +81,6 @@ func initAccount(db *gorm.DB, name string, password string) error {
 		Password: password,
 		Role:     "admin",
 	}
-	// log.Println("enter here!")
 
 	return db.Create(ac).Error
 }

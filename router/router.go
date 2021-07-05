@@ -29,7 +29,6 @@ func Check2FA() gin.HandlerFunc {
 		key := c.GetHeader("2fa")
 		code, err := service.GetCode("abcdefghijklmnop")
 		if err != nil {
-			// return false
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err,
 			})

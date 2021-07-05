@@ -64,16 +64,12 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-// func EncryptJwt(l *Login) string {
 func EncryptJwt(name string, role string) string {
 
 	claims := &Claims{
 		Username:       name,
 		Role:           role,
-		StandardClaims: jwt.StandardClaims{
-			// In JWT, the expiry time is expressed as unix milliseconds
-			// ExpiresAt: expirationTime.Unix(),
-		},
+		StandardClaims: jwt.StandardClaims{},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
