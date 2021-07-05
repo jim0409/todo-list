@@ -24,21 +24,73 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
+func compareTFA(key string, tkn string) bool {
+	code, err := service.GetCode(key)
+	if err != nil {
+		return false
+	}
+
+	if code == tkn {
+		return true
+	}
+	return false
+}
+
+func Check2FA() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		key := c.GetHeader("2fa")
+		code, err := service.GetCode("abcdefghijklmnop")
+		if err != nil {
+			// return false
+			c.JSON(http.StatusBadRequest, gin.H{
+				"msg": err,
+			})
+			c.Abort()
+		}
+
+		if code != key {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"msg": "invalid captcha",
+			})
+			c.Abort()
+		}
+
+		c.Next()
+	}
+}
+
+func ConvertJwtUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		auth := c.GetHeader("Authorization")
+		name, role, err := service.ValidatedJWT(auth)
+		if err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		c.Set("name", name)
+		c.Set("role", role)
+
+		c.Next()
+	}
+}
+
 func ApiRouter(r *gin.Engine) {
 	// https://stackoverflow.com/questions/29418478/go-gin-framework-cors
 	// middleware need to be implement before Group
 	r.Use(CORSMiddleware())
-	// r.Use(service.CheckAuth())
 
 	version := r.Group("/v1")
 
+	regist := version.Group("/login")
+	{
+		regist.Use(Check2FA()) // two-factor auth
+		// regist.POST("/verify", service.VerifyUser) // 確認帳號可以使用，並且回傳一個驗證碼，驗證碼來自 authenicator
+		regist.POST("", service.LoginUser) // 該使用者透過登入後得到的 Set-Cookie 才能看見 html page
+	}
+
 	ac := version.Group("/usr")
 	{
-
-		// auth ?
-		ac.POST("/verify", nil) // 確認帳號可以使用，並且回傳一個驗證碼，驗證碼來自 authenicator
-		ac.POST("/login", nil)  // 該使用者透過登入後得到的 Set-Cookie 才能看見 html page
-
+		ac.Use(ConvertJwtUser())
 		// normal - account
 		ac.POST("/register", service.RegisterUser) // 註冊一個 user 帳號
 		ac.GET("/info", service.GetUserInfo)       // 回傳 user 資訊
@@ -48,11 +100,11 @@ func ApiRouter(r *gin.Engine) {
 		ac.PUT("/role", service.ChangeUserRole)          // 更新 user
 		ac.PUT("/status", service.ChangeUserStatus)      // 註消該 user 帳號
 		ac.DELETE("/unregister", service.UnregisterUser) // 註消該 user 帳號
-
 	}
 
 	no := version.Group("/note")
 	{
+		no.Use(ConvertJwtUser())
 		no.Use(service.CheckAuth())
 		no.POST("/add", service.CreateNotes)
 

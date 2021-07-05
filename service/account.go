@@ -9,13 +9,14 @@ import (
 )
 
 type usr struct {
-	Name     string
-	Status   uint8
-	Role     string
-	Password string
-	Phone    string
-	Mail     string
-	Intro    string
+	Name       string `json:"name"`
+	Status     uint8  `json:"status"`
+	Role       string `json:"role"`
+	Password   string `json:"password"`
+	Phone      string `json:"phone"`
+	Mail       string `json:"mail"`
+	Intro      string `json:"intro"`
+	VerifyCode string `json:"code"`
 }
 
 func LoginUser(c *gin.Context) {
@@ -24,12 +25,21 @@ func LoginUser(c *gin.Context) {
 	ep(err)
 	err = json.Unmarshal(b, ut)
 	ep(err)
-	err = models.RetriveMySqlDbAccessModel().LoginUser(ut.Name, ut.Password)
-	ep(err)
+	m, err := models.RetriveMySqlDbAccessModel().LoginUser(ut.Name, ut.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": "failed to login",
+		})
+		c.Abort()
+		return
+	}
 
-	// genJwtToken()
+	jwtcookie := EncryptJwt(m["name"].(string), m["role"].(string))
+	// c.SetCookie("token", jwtcookie, 300, "/", "*", false, false) // set-cookie
+
 	c.JSON(http.StatusOK, gin.H{
-		"token": "ok",
+		"msg":   "login success",
+		"token": jwtcookie,
 	})
 
 	c.Abort()
@@ -42,6 +52,8 @@ func RegisterUser(c *gin.Context) {
 	ep(err)
 	err = json.Unmarshal(b, ut)
 	ep(err)
+
+	// TOOD: 檢查 verified code 然後才註冊使用者，避免直接創建而導致 使用者重複
 	err = models.RetriveMySqlDbAccessModel().CreateUser(ut.Name, ut.Password, ut.Phone, ut.Mail)
 	ep(err)
 
@@ -51,8 +63,8 @@ func RegisterUser(c *gin.Context) {
 
 func GetUserInfo(c *gin.Context) {
 	// should retrieve user from session ...
-	// c.Get("name")
-	m, err := models.RetriveMySqlDbAccessModel().GetUserInfo("jim")
+	name := c.GetString("name")
+	m, err := models.RetriveMySqlDbAccessModel().GetUserInfo(name)
 	ep(err)
 
 	c.JSON(http.StatusOK, m)

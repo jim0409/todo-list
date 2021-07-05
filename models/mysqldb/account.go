@@ -10,7 +10,7 @@ import (
 
 type AccountImp interface {
 	// basic CRUD
-	LoginUser(string, string) error
+	LoginUser(string, string) (map[string]interface{}, error)
 	CreateUser(string, string, string, string) error
 	GetUserInfo(string) (map[string]interface{}, error)
 
@@ -88,17 +88,22 @@ func initAccount(db *gorm.DB, name string, password string) error {
 	return db.Create(ac).Error
 }
 
-func (db *mysqlDBObj) LoginUser(name string, password string) error {
+func (db *mysqlDBObj) LoginUser(name string, password string) (map[string]interface{}, error) {
 	// TODO: do some pre-handler-for-password
-	ac := &Account{
-		Name:     name,
-		Password: password,
-	}
+	ac := &Account{}
+
 	if err := db.DB.Table(accountTable).Where("name = ? and password = ? and deleted_at is NULL", name, password).Scan(ac).Error; err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	if ac.Name == "" {
+		return nil, fmt.Errorf("user not exist")
+	}
+
+	return map[string]interface{}{
+		"name": ac.Name,
+		"role": ac.Role,
+	}, nil
 }
 
 func (db *mysqlDBObj) CreateUser(name string, pw string, phone string, mail string) error {
@@ -143,7 +148,7 @@ func (db *mysqlDBObj) UpdateUserInfos(m map[string]interface{}) error {
 	}
 
 	// 有沒有可能要更新的對象不存在? ... 答案是否定的，因為 name 一定要從 session 過來
-	return db.DB.Debug().Updates(ac).Where("name = ?", name).Error
+	return db.DB.Updates(ac).Where("name = ?", name).Error
 }
 
 func (db *mysqlDBObj) UpdateUserPassword(string, string) error {
@@ -160,14 +165,14 @@ func (db *mysqlDBObj) ChangeUserStatus(name string, status uint8) error {
 	ac := &Account{
 		Status: status,
 	}
-	return db.DB.Debug().Table(accountTable).Where("name = ? and deleted_at is NULL", name).Updates(ac).Error
+	return db.DB.Table(accountTable).Where("name = ? and deleted_at is NULL", name).Updates(ac).Error
 }
 
 func (db *mysqlDBObj) DeleteUser(name string) error {
 	ac := &Account{
 		Name: name,
 	}
-	return db.DB.Debug().Table(accountTable).Where("name = ?", name).Delete(ac).Error
+	return db.DB.Table(accountTable).Where("name = ?", name).Delete(ac).Error
 }
 
 func (db *mysqlDBObj) UpdateUserRole(name string, role string) error {
