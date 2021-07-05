@@ -24,18 +24,6 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-func compareTFA(key string, tkn string) bool {
-	code, err := service.GetCode(key)
-	if err != nil {
-		return false
-	}
-
-	if code == tkn {
-		return true
-	}
-	return false
-}
-
 func Check2FA() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		key := c.GetHeader("2fa")
