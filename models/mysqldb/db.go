@@ -77,13 +77,8 @@ func (db *mysqlDBObj) Close() error {
 	return d.Close()
 }
 
-func (db *mysqlDBObj) retrieveDB() *gorm.DB {
-	return db.DB
-}
-
 type MySQLDBAccessObject interface {
 	Close() error
-	retrieveDB() *gorm.DB // private method
 
 	NoteImp
 	AuthImp
